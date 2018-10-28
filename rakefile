@@ -1,5 +1,9 @@
 @container_name = "qemu_container"
-@docker_cmd = "docker run -it --name=#{@container_name} --rm qemu_stm32 /usr/local/bin/qemu-system-arm -M stm32-p103 -serial mon:stdio -monitor tcp:127.0.0.1:5900,server,nowait -kernel /stm32_p103_demos/demos/"
+@monitor_port="1111"
+@serial_port="2222"
+@gdb_port="3333"
+
+@docker_cmd = "docker run -it --name=#{@container_name} --rm qemu_stm32 /usr/local/bin/qemu-system-arm -M stm32-p103 -monitor tcp::1111,server,nowait -serial tcp::2222,server,nowait -gdb tcp::3333,server -kernel /stm32_p103_demos/demos/"
 
 desc "Run the QEMU STM32 binary with docker"
 task :demo, [:demo_name] do |t, args| 
@@ -10,7 +14,9 @@ end
 desc "Run the button demo in QEMU STM32 binary with docker"
 task :btn do
     demo_bin="button/main.bin"
-    system(@docker_cmd + demo_bin)
+    full_command = @docker_cmd + demo_bin
+    puts full_command
+    system(full_command)
 end
 
 desc "Run the echo demo in QEMU STM32 binary with docker"
@@ -19,13 +25,37 @@ task :echo do
     system(@docker_cmd + demo_bin)
 end
 
-desc "Debug running docker container"
+desc "Shell into running docker container"
 task :dbg do
-    system("docker exec -it #{@container_name} /bin/nc 127.0.0.1 5900")
+    system("docker exec -it #{@container_name} /bin/sh")
+end
+
+desc "Debug VM with QEMU monitor"
+task :monitor do
+    system("docker exec -it #{@container_name} /bin/nc 0.0.0.0 #{@monitor_port}")
+end
+
+desc "Serial comm with QEMU"
+task :serial do
+    system("docker exec -it #{@container_name} /bin/nc 0.0.0.0 #{@serial_port}")
+end
+
+desc "Setup GDB server"
+task :gdb do
+    system("docker exec -it #{@container_name} /bin/nc 0.0.0.0 #{@gdb_port}")
 end
 
 desc "Run interactive shell"
 task :int do
     system("docker run -it --name=#{@container_name} qemu_stm32 bash")
+end
+
+desc "Open 3 windows, 1 with VM, 1 with serial, 1 with monitor, 0 with GDB"
+task :all do
+    system("osascript -e 'tell application \"Terminal\" to do script \"cd #{`pwd`} rake btn\"'")
+    system("sleep 0.5")
+    system("osascript -e 'tell application \"Terminal\" to do script \"cd #{`pwd`} rake monitor\"'")
+    system("osascript -e 'tell application \"Terminal\" to do script \"cd #{`pwd`} rake serial\"'")
+    # doesn't work yet, causes hangup system("osascript -e 'tell application \"Terminal\" to do script \"cd #{`pwd`} rake gdb\"'")
 end
 
