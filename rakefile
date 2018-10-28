@@ -1,11 +1,16 @@
 desc "Run the QEMU STM32 binary with docker"
 task :run do
-    system("docker run --rm qemu_stm32 /usr/local/bin/qemu-system-arm -M stm32-p103 -kernel /stm32_p103_demos/demos/freertos_singlethread/main.bin")
+    system("docker run --rm qemu_stm32 /usr/local/bin/qemu-system-arm -M stm32-p103 -serial mon:stdio -kernel /stm32_p103_demos/demos/freertos_singlethread/main.bin")
 end
 
-desc "Run the button demo with monitor in QEMU STM32 binary with docker"
-task :btn_m do
-    system("docker run -it --rm qemu_stm32 /usr/local/bin/qemu-system-arm -M stm32-p103 -monitor stdio -kernel /stm32_p103_demos/demos/button/main.bin")
+desc "Run the button demo in QEMU STM32 binary with docker"
+task :btn do
+    system("docker run -it --rm qemu_stm32 /usr/local/bin/qemu-system-arm -M stm32-p103 -serial mon:stdio -kernel /stm32_p103_demos/demos/button/main.bin")
+end
+
+desc "Run the echo demo in QEMU STM32 binary with docker"
+task :echo do
+    system("docker run -it --rm qemu_stm32 /usr/local/bin/qemu-system-arm -M stm32-p103 -serial mon:stdio -kernel /stm32_p103_demos/demos/uart_echo/main.bin")
 end
 
 desc "Debug running docker container get correct container ID"
