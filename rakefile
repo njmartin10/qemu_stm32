@@ -21,7 +21,7 @@ end
 
 desc "Debug running docker container"
 task :dbg do
-    system("docker exec -it #{@container_name} /bin/sh")
+    system("docker exec -it #{@container_name} /bin/nc 127.0.0.1 5900")
 end
 
 desc "Run interactive shell"
