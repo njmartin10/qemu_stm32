@@ -1,25 +1,26 @@
 @container_name = "qemu_container"
+@docker_cmd = "docker run -it --name=#{@container_name} --rm qemu_stm32 /usr/local/bin/qemu-system-arm -M stm32-p103 -serial mon:stdio -monitor tcp:127.0.0.1:5900,server,nowait -kernel /stm32_p103_demos/demos/"
 
 desc "Run the QEMU STM32 binary with docker"
-task :run do
-    system("docker run --name=#{@container_name} --rm qemu_stm32 /usr/local/bin/qemu-system-arm -M stm32-p103 -serial mon:stdio -kernel /stm32_p103_demos/demos/freertos_singlethread/main.bin")
+task :demo, [:demo_name] do |t, args| 
+    demo_bin="#{args[:demo_name]}/main.bin"
+    system(@docker_cmd + demo_bin)
 end
 
 desc "Run the button demo in QEMU STM32 binary with docker"
 task :btn do
-    system("docker run -it --name=#{@container_name} --rm qemu_stm32 /usr/local/bin/qemu-system-arm -M stm32-p103 -serial mon:stdio -kernel /stm32_p103_demos/demos/button/main.bin")
+    demo_bin="button/main.bin"
+    system(@docker_cmd + demo_bin)
 end
 
 desc "Run the echo demo in QEMU STM32 binary with docker"
 task :echo do
-    system("docker run -it --name=#{@container_name} --rm qemu_stm32 /usr/local/bin/qemu-system-arm -M stm32-p103 -serial mon:stdio -kernel /stm32_p103_demos/demos/uart_echo/main.bin")
+    demo_bin="uart_echo/main.bin"
+    system(@docker_cmd + demo_bin)
 end
 
 desc "Debug running docker container"
 task :dbg do
-    # , [:container_name] do |t, args|
-    # puts args[:container_name]
-    # container_id = `docker ps -aqf \"name=#{args[:container_name]}\"`
     system("docker exec -it #{@container_name} /bin/sh")
 end
 
@@ -28,7 +29,3 @@ task :int do
     system("docker run -it --name=#{@container_name} qemu_stm32 bash")
 end
 
-desc "TCP monitor test"
-task :tcp do
-    system("docker run -it --name=#{@container_name} --rm qemu_stm32 /usr/local/bin/qemu-system-arm -M stm32-p103 -serial mon:stdio -monitor tcp:127.0.0.1:5900,server,nowait -kernel /stm32_p103_demos/demos/button/main.bin")
-end
