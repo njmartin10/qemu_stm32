@@ -7,6 +7,7 @@ RUN dnf install -y \
           make\
           nc\
           gcc\
+          gdb\
           git\
           glib2-devel\
           libfdt-devel\
