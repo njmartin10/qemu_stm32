@@ -1,24 +1,34 @@
+@container_name = "qemu_container"
+
 desc "Run the QEMU STM32 binary with docker"
 task :run do
-    system("docker run --rm qemu_stm32 /usr/local/bin/qemu-system-arm -M stm32-p103 -serial mon:stdio -kernel /stm32_p103_demos/demos/freertos_singlethread/main.bin")
+    system("docker run --name=#{@container_name} --rm qemu_stm32 /usr/local/bin/qemu-system-arm -M stm32-p103 -serial mon:stdio -kernel /stm32_p103_demos/demos/freertos_singlethread/main.bin")
 end
 
 desc "Run the button demo in QEMU STM32 binary with docker"
 task :btn do
-    system("docker run -it --rm qemu_stm32 /usr/local/bin/qemu-system-arm -M stm32-p103 -serial mon:stdio -kernel /stm32_p103_demos/demos/button/main.bin")
+    system("docker run -it --name=#{@container_name} --rm qemu_stm32 /usr/local/bin/qemu-system-arm -M stm32-p103 -serial mon:stdio -kernel /stm32_p103_demos/demos/button/main.bin")
 end
 
 desc "Run the echo demo in QEMU STM32 binary with docker"
 task :echo do
-    system("docker run -it --rm qemu_stm32 /usr/local/bin/qemu-system-arm -M stm32-p103 -serial mon:stdio -kernel /stm32_p103_demos/demos/uart_echo/main.bin")
+    system("docker run -it --name=#{@container_name} --rm qemu_stm32 /usr/local/bin/qemu-system-arm -M stm32-p103 -serial mon:stdio -kernel /stm32_p103_demos/demos/uart_echo/main.bin")
 end
 
-desc "Debug running docker container get correct container ID"
+desc "Debug running docker container"
 task :dbg do
-    system("docker exec -it 26867903343b bash")
+    # , [:container_name] do |t, args|
+    # puts args[:container_name]
+    # container_id = `docker ps -aqf \"name=#{args[:container_name]}\"`
+    system("docker exec -it #{@container_name} /bin/sh")
 end
 
 desc "Run interactive shell"
 task :int do
-    system("docker run -it qemu_stm32 bash")
+    system("docker run -it --name=#{@container_name} qemu_stm32 bash")
+end
+
+desc "TCP monitor test"
+task :tcp do
+    system("docker run -it --name=#{@container_name} --rm qemu_stm32 /usr/local/bin/qemu-system-arm -M stm32-p103 -serial mon:stdio -monitor tcp:127.0.0.1:5900,server,nowait -kernel /stm32_p103_demos/demos/button/main.bin")
 end
