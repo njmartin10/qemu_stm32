@@ -4,6 +4,7 @@ RUN dnf install -y \
           arm-none-eabi-gcc\
           arm-none-eabi-newlib\
           findutils\
+          make\
           gcc\
           git\
           glib2-devel\
